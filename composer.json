@@ -28,18 +28,29 @@
         "phpstan/extension-installer": "^1.4",
         "wp-coding-standards/wpcs": "^3.0",
 		"roave/security-advisories": "dev-latest",
-        "composer/composer": "^2.0"
+        "composer/composer": "^2.0",
+        "ion-bazan/composer-diff": "^1.12",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
+        "ergebnis/composer-normalize": "^2.47"
     },
     "config": {
         "allow-plugins": {
             "phpstan/extension-installer": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ion-bazan/composer-diff": true,
+            "ergebnis/composer-normalize": true
         }
     },
     "scripts": {
+		"diff-list": "@composer diff --with-links --format=mdlist --base=release ",
+        "lint": "@lint:php && @lint:phpcs && @lint:phpstan",
+        "lint:php": "vendor/bin/parallel-lint --exclude .git --exclude vendor .",
         "lint:phpcs": "vendor/bin/phpcs -ps . --standard=WordPress --ignore=vendor",
         "lint:phpcs:fix": "vendor/bin/phpcbf -ps . --standard=WordPress --ignore=vendor",
         "lint:phpstan": "vendor/bin/phpstan analyze .",
-        "phpcs": "@lint:phpcs"
+        "phpcs": "@lint:phpcs",
+        "phpcbf": "@lint:phpcs:fix",
+        "phpstan": "@lint:phpstan"
     }
 }
