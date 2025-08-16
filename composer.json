@@ -1,0 +1,18 @@
+{
+    "name": "tomjn/wp-php-linting-action",
+    "description": "A basic WordPress PHP linting metapackage and action",
+    "type": "metapackage",
+    "license": "GPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Tomjn\\WpPhpLintingAction\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tom J Nowell <contact@tomjn.com>"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
