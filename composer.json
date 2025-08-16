@@ -27,9 +27,9 @@
     },
     "minimum-stability": "stable",
     "autoload": {
-        "psr-4": {
-            "Tomjn\\SharedScripts\\": "src/"
-        }
+        "classmap": [
+            "src/"
+        ]
     },
     "config": {
         "allow-plugins": {
@@ -44,7 +44,11 @@
     },
     "scripts": {
         "diff-list": "@composer diff --with-links --format=mdlist --base=release ",
-        "lint": "@lint:php && @lint:phpcs && @lint:phpstan",
+        "lint": [
+            "@lint:php",
+            "@lint:phpcs",
+            "@lint:phpstan"
+        ],
         "lint:php": "vendor/bin/parallel-lint --exclude .git --exclude vendor .",
         "lint:phpcs": "vendor/bin/phpcs -ps . --standard=WordPress --ignore=vendor",
         "lint:phpcs:fix": "vendor/bin/phpcbf -ps . --standard=WordPress --ignore=vendor",
