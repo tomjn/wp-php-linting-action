@@ -1,0 +1,14 @@
+parameters:
+	level: 0
+
+	# Code you actually want analysed
+	#paths:
+	#	- src
+
+	# Make sure PHPStan knows about vendor autoload
+	bootstrapFiles:
+		- vendor/autoload.php
+
+	# Explicitly exclude vendor from scanning
+	excludePaths:
+		- vendor

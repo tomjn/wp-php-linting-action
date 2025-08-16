@@ -27,7 +27,8 @@
         "szepeviktor/phpstan-wordpress": "^2.0",
         "phpstan/extension-installer": "^1.4",
         "wp-coding-standards/wpcs": "^3.0",
-		"roave/security-advisories": "dev-latest"
+		"roave/security-advisories": "dev-latest",
+        "composer/composer": "^2.0"
     },
     "config": {
         "allow-plugins": {
