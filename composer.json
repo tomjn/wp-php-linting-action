@@ -1,18 +1,44 @@
 {
     "name": "tomjn/wp-php-linting-action",
     "description": "A basic WordPress PHP linting metapackage and action",
-    "type": "metapackage",
+    "type": "composer-plugin",
     "license": "GPL-3.0-or-later",
     "autoload": {
         "psr-4": {
-            "Tomjn\\WpPhpLintingAction\\": "src/"
+            "Tomjn\\SharedScripts\\": "src/"
         }
     },
     "authors": [
         {
-            "name": "Tom J Nowell <contact@tomjn.com>"
+            "name": "Tom J Nowell",
+            "email": "contact@tomjn.com"
         }
     ],
     "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "composer-plugin-api": "^2.0",
+        "php": ">7.4"
+    },
+    "extra": {
+        "class": "Tomjn\\SharedScripts\\Plugin"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "phpstan/extension-installer": "^1.4",
+        "wp-coding-standards/wpcs": "^3.0",
+		"roave/security-advisories": "dev-latest"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "lint:phpcs": "vendor/bin/phpcs -ps . --standard=WordPress --ignore=vendor",
+        "lint:phpcs:fix": "vendor/bin/phpcbf -ps . --standard=WordPress --ignore=vendor",
+        "lint:phpstan": "vendor/bin/phpstan analyze .",
+        "phpcs": "@lint:phpcs"
+    }
 }
