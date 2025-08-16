@@ -1,56 +1,56 @@
 {
     "name": "tomjn/wp-php-linting-action",
     "description": "A basic WordPress PHP linting metapackage and action",
-    "type": "composer-plugin",
     "license": "GPL-3.0-or-later",
-    "autoload": {
-        "psr-4": {
-            "Tomjn\\SharedScripts\\": "src/"
-        }
-    },
+    "type": "composer-plugin",
     "authors": [
         {
             "name": "Tom J Nowell",
             "email": "contact@tomjn.com"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
-        "composer-plugin-api": "^2.0",
-        "php": ">7.4"
+        "php": ">7.4",
+        "composer-plugin-api": "^2.0"
+    },
+    "require-dev": {
+        "composer/composer": "^2.0",
+        "ergebnis/composer-normalize": "^2.47",
+        "ion-bazan/composer-diff": "^1.12",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "roave/security-advisories": "dev-latest",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "wp-coding-standards/wpcs": "^3.0"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Tomjn\\SharedScripts\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true,
+            "ion-bazan/composer-diff": true,
+            "phpstan/extension-installer": true
+        }
     },
     "extra": {
         "class": "Tomjn\\SharedScripts\\Plugin"
     },
-    "require-dev": {
-        "phpstan/phpstan": "^2.1",
-        "szepeviktor/phpstan-wordpress": "^2.0",
-        "phpstan/extension-installer": "^1.4",
-        "wp-coding-standards/wpcs": "^3.0",
-		"roave/security-advisories": "dev-latest",
-        "composer/composer": "^2.0",
-        "ion-bazan/composer-diff": "^1.12",
-        "php-parallel-lint/php-parallel-lint": "^1.4",
-        "php-parallel-lint/php-console-highlighter": "^1.0",
-        "ergebnis/composer-normalize": "^2.47"
-    },
-    "config": {
-        "allow-plugins": {
-            "phpstan/extension-installer": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "ion-bazan/composer-diff": true,
-            "ergebnis/composer-normalize": true
-        }
-    },
     "scripts": {
-		"diff-list": "@composer diff --with-links --format=mdlist --base=release ",
+        "diff-list": "@composer diff --with-links --format=mdlist --base=release ",
         "lint": "@lint:php && @lint:phpcs && @lint:phpstan",
         "lint:php": "vendor/bin/parallel-lint --exclude .git --exclude vendor .",
         "lint:phpcs": "vendor/bin/phpcs -ps . --standard=WordPress --ignore=vendor",
         "lint:phpcs:fix": "vendor/bin/phpcbf -ps . --standard=WordPress --ignore=vendor",
         "lint:phpstan": "vendor/bin/phpstan analyze .",
-        "phpcs": "@lint:phpcs",
         "phpcbf": "@lint:phpcs:fix",
+        "phpcs": "@lint:phpcs",
         "phpstan": "@lint:phpstan"
     }
 }
