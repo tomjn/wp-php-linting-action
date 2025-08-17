@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   phpcs:
-    name: PHPCS check
+    name: PHP Linting checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
