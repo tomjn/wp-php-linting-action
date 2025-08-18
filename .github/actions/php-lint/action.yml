@@ -3,39 +3,44 @@ description: 'A general PHP linting action for WordPress code.'
 runs:
   using: 'composite'
   steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: 'latest'
-          ini-values: 'memory_limit=1G'
-          coverage: none
-          tools: cs2pr
+    - name: Setup PHP
+      uses: "shivammathur/setup-php@v2"
+      with:
+        php-version: 'latest'
+        ini-values: 'memory_limit=1G'
+        coverage: none
+        tools: cs2pr
 
-      - name: Composer Validate
-        id: composer_validate
-        run: composer validate
+    - name: Composer Validate
+      id: composer_validate
+      shell: bash
+      run: composer validate
 
-      - name: Install Composer dependencies
-        uses: "ramsey/composer-install@v3"
-        with:
-          # Bust the cache at least once a month - output format: YYYY-MM.
-          custom-cache-suffix: $(date -u "+%Y-%m")
+    - name: Install Composer dependencies
+      uses: "ramsey/composer-install@v3"
+      with:
+        # Bust the cache at least once a month - output format: YYYY-MM.
+        custom-cache-suffix: $(date -u "+%Y-%m")
 
-      - name: PHP Syntax
-        id: php_syntax
-        run: composer run lint:php
+    - name: PHP Syntax
+      id: php_syntax
+      shell: bash
+      run: composer run lint:php
 
-      - name: Run PHPCS checks
-        id: phpcs
-        run: composer run lint:phpcs
+    - name: Run PHPCS checks
+      id: phpcs
+      shell: bash
+      run: composer run lint:phpcs
 
-      - name: Show PHPCS results in PR
-        if: ${{ always() && steps.phpcs.outcome == 'failure' }}
-        run: cs2pr ./phpcs-report.xml
+    - name: Show PHPCS results in PR
+      if: ${{ always() && steps.phpcs.outcome == 'failure' }}
+      shell: bash
+      run: cs2pr ./phpcs-report.xml
 
-      - name: PHPStan checks
-        id: phpstan
-        run: composer run lint:phpstan
+    - name: PHPStan checks
+      id: phpstan
+      shell: bash
+      run: composer run lint:phpstan
