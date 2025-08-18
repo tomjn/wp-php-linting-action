@@ -4,4 +4,4 @@ runs:
   using: 'composite'
   steps:
       - name: PHP Lint
-        uses: ./.github/workflows/php-lint.yml
+        uses: ./.github/actions/php-lint
