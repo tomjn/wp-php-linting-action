@@ -5,3 +5,5 @@ runs:
   steps:
       - name: PHP Lint
         uses: ./.github/actions/php-lint
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
