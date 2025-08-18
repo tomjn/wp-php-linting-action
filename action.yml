@@ -1,0 +1,7 @@
+name: 'WP PHP Linting Action'
+description: 'A general PHP linting action for WordPress code.'
+runs:
+  using: 'composite'
+  steps:
+      - name: PHP Lint
+        uses: ./.github/workflows/php-lint
