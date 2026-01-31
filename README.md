@@ -74,6 +74,8 @@ phpstan-level: 0
 
 ### Installation
 
+**Always install as a dev dependency** - this package is for development/CI only and should never be deployed to production:
+
 ```bash
 composer require --dev tomjn/wp-php-linting-action
 ```

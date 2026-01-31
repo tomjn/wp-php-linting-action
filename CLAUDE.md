@@ -14,6 +14,8 @@ Injects scripts from `extra.shared-scripts` into consuming projects. The plugin 
 
 - **Variable naming**: Watch for typos like `$candidatesarray` vs `$candidates` - this caused a production bug
 - **require vs require-dev**: Linting tools must be in `require` (not `require-dev`) so consumers can access the binaries
+- **Platform PHP version**: `composer.json` locks platform to PHP 8.2 to avoid pulling Symfony 8.x (requires PHP 8.4). Regenerate lock file with `composer update` if changing this.
+- **Consumer installs as --dev**: Consumers should always `composer require --dev` this package - it's for CI only, never production
 - **Testing action changes**: Push to main, then test via `private-plugin-test-repo` workflow dispatch
 
 ## Do NOT
