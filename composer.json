@@ -11,19 +11,19 @@
     ],
     "require": {
         "php": ">7.4",
-        "composer-plugin-api": "^2.0"
+        "composer-plugin-api": "^2.0",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "wp-coding-standards/wpcs": "^3.0"
     },
     "require-dev": {
         "composer/composer": "^2.0",
         "ergebnis/composer-normalize": "^2.47",
         "ion-bazan/composer-diff": "^1.12",
-        "php-parallel-lint/php-console-highlighter": "^1.0",
-        "php-parallel-lint/php-parallel-lint": "^1.4",
-        "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan": "^2.1",
-        "roave/security-advisories": "dev-latest",
-        "szepeviktor/phpstan-wordpress": "^2.0",
-        "wp-coding-standards/wpcs": "^3.0"
+        "roave/security-advisories": "dev-latest"
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -40,7 +40,21 @@
         }
     },
     "extra": {
-        "class": "Tomjn\\SharedScripts\\Plugin"
+        "class": "Tomjn\\SharedScripts\\Plugin",
+        "shared-scripts": {
+            "collision": "keep-root",
+            "scripts": {
+                "lint": [
+                    "@lint:php",
+                    "@lint:phpcs",
+                    "@lint:phpstan"
+                ],
+                "lint:php": "vendor/bin/parallel-lint --exclude .git --exclude vendor .",
+                "lint:phpcs": "vendor/bin/phpcs -ps . --standard=WordPress --ignore=vendor",
+                "lint:phpcs:fix": "vendor/bin/phpcbf -ps . --standard=WordPress --ignore=vendor",
+                "lint:phpstan": "vendor/bin/phpstan analyze --level=0 ."
+            }
+        }
     },
     "scripts": {
         "diff-list": "@composer diff --with-links --format=mdlist --base=release ",

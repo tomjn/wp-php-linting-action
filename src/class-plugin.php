@@ -168,7 +168,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface {
 					}
 					continue;
 				}
-				$candidatesarray[] = array(
+				$candidates[] = array(
 					'name'      => $final_name,
 					'value'     => $norm,
 					'pkg'       => $pkg_name,

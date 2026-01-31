@@ -1,7 +1,204 @@
 name: 'WP PHP Linting Action'
-description: 'A general PHP linting action for WordPress code.'
+description: 'A WordPress PHP linting action providing syntax checks, PHPCS with WPCS v3, and PHPStan.'
+author: 'Tom J Nowell'
+
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+
+inputs:
+  php-version:
+    description: 'PHP version to use'
+    required: false
+    default: '8.2'
+  content-path:
+    description: 'Path to the content folder (wp-content or content)'
+    required: false
+    default: 'wp-content'
+  run-syntax:
+    description: 'Run PHP syntax checks with parallel-lint'
+    required: false
+    default: 'true'
+  run-phpcs:
+    description: 'Run PHPCS with WordPress Coding Standards'
+    required: false
+    default: 'true'
+  run-phpstan:
+    description: 'Run PHPStan static analysis'
+    required: false
+    default: 'true'
+  phpstan-level:
+    description: 'PHPStan analysis level (0-9)'
+    required: false
+    default: '0'
+  run-composer-diff:
+    description: 'Run composer diff on pull requests'
+    required: false
+    default: 'true'
+  config-file:
+    description: 'Path to optional config file'
+    required: false
+    default: '.github/wp-lint.yml'
+  extra-phpcs-args:
+    description: 'Additional arguments to pass to PHPCS'
+    required: false
+    default: ''
+  extra-phpstan-args:
+    description: 'Additional arguments to pass to PHPStan'
+    required: false
+    default: ''
+
 runs:
   using: 'composite'
   steps:
-      - name: PHP Lint
-        uses: ./.github/actions/php-lint
+    - name: Checkout linting tools
+      uses: actions/checkout@v4
+      with:
+        repository: tomjn/wp-php-linting-action
+        path: .wp-linting-tools
+        ref: main
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        ini-values: memory_limit=1G
+        coverage: none
+        tools: cs2pr
+
+    - name: Install linting dependencies
+      shell: bash
+      working-directory: .wp-linting-tools
+      run: composer install --no-interaction --prefer-dist --no-progress
+
+    - name: Read config file
+      id: config
+      shell: bash
+      run: |
+        CONFIG_FILE="${{ inputs.config-file }}"
+
+        # Set defaults from inputs
+        echo "content_path=${{ inputs.content-path }}" >> $GITHUB_OUTPUT
+        echo "run_syntax=${{ inputs.run-syntax }}" >> $GITHUB_OUTPUT
+        echo "run_phpcs=${{ inputs.run-phpcs }}" >> $GITHUB_OUTPUT
+        echo "run_phpstan=${{ inputs.run-phpstan }}" >> $GITHUB_OUTPUT
+        echo "phpstan_level=${{ inputs.phpstan-level }}" >> $GITHUB_OUTPUT
+
+        # Override with config file if it exists
+        if [ -f "$CONFIG_FILE" ]; then
+          echo "Found config file: $CONFIG_FILE"
+
+          # Parse YAML config (basic parsing)
+          if grep -q "^content-path:" "$CONFIG_FILE" 2>/dev/null; then
+            VALUE=$(grep "^content-path:" "$CONFIG_FILE" | sed 's/^content-path:[[:space:]]*//' | tr -d '"'"'")
+            echo "content_path=$VALUE" >> $GITHUB_OUTPUT
+          fi
+
+          if grep -q "^run-syntax:" "$CONFIG_FILE" 2>/dev/null; then
+            VALUE=$(grep "^run-syntax:" "$CONFIG_FILE" | sed 's/^run-syntax:[[:space:]]*//' | tr -d '"'"'")
+            echo "run_syntax=$VALUE" >> $GITHUB_OUTPUT
+          fi
+
+          if grep -q "^run-phpcs:" "$CONFIG_FILE" 2>/dev/null; then
+            VALUE=$(grep "^run-phpcs:" "$CONFIG_FILE" | sed 's/^run-phpcs:[[:space:]]*//' | tr -d '"'"'")
+            echo "run_phpcs=$VALUE" >> $GITHUB_OUTPUT
+          fi
+
+          if grep -q "^run-phpstan:" "$CONFIG_FILE" 2>/dev/null; then
+            VALUE=$(grep "^run-phpstan:" "$CONFIG_FILE" | sed 's/^run-phpstan:[[:space:]]*//' | tr -d '"'"'")
+            echo "run_phpstan=$VALUE" >> $GITHUB_OUTPUT
+          fi
+
+          if grep -q "^phpstan-level:" "$CONFIG_FILE" 2>/dev/null; then
+            VALUE=$(grep "^phpstan-level:" "$CONFIG_FILE" | sed 's/^phpstan-level:[[:space:]]*//' | tr -d '"'"'")
+            echo "phpstan_level=$VALUE" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "No config file found at $CONFIG_FILE, using defaults"
+        fi
+
+    - name: PHP Syntax Check
+      if: steps.config.outputs.run_syntax == 'true'
+      shell: bash
+      run: |
+        echo "Running PHP syntax check..."
+        .wp-linting-tools/vendor/bin/parallel-lint \
+          --exclude .git \
+          --exclude vendor \
+          --exclude .wp-linting-tools \
+          --exclude node_modules \
+          .
+
+    - name: PHPCS Check
+      if: steps.config.outputs.run_phpcs == 'true'
+      shell: bash
+      run: |
+        echo "Running PHPCS with WordPress Coding Standards..."
+        .wp-linting-tools/vendor/bin/phpcs \
+          -ps \
+          --standard=WordPress \
+          --ignore=vendor,node_modules,.wp-linting-tools,.git \
+          --report=checkstyle \
+          --report-file=phpcs-report.xml \
+          ${{ inputs.extra-phpcs-args }} \
+          . || PHPCS_EXIT=$?
+
+        # Also output to console
+        .wp-linting-tools/vendor/bin/phpcs \
+          -ps \
+          --standard=WordPress \
+          --ignore=vendor,node_modules,.wp-linting-tools,.git \
+          ${{ inputs.extra-phpcs-args }} \
+          . || true
+
+        exit ${PHPCS_EXIT:-0}
+
+    - name: Show PHPCS results in PR
+      if: always() && steps.config.outputs.run_phpcs == 'true' && hashFiles('phpcs-report.xml') != ''
+      shell: bash
+      run: |
+        if [ -f phpcs-report.xml ]; then
+          cs2pr phpcs-report.xml || true
+        fi
+
+    - name: PHPStan Check
+      if: steps.config.outputs.run_phpstan == 'true'
+      shell: bash
+      run: |
+        echo "Running PHPStan at level ${{ steps.config.outputs.phpstan_level }}..."
+        .wp-linting-tools/vendor/bin/phpstan analyze \
+          --level=${{ steps.config.outputs.phpstan_level }} \
+          --no-progress \
+          ${{ inputs.extra-phpstan-args }} \
+          .
+
+    - name: Composer Diff
+      if: inputs.run-composer-diff == 'true' && github.event_name == 'pull_request' && hashFiles('composer.lock') != ''
+      shell: bash
+      run: |
+        echo "Running composer diff..."
+        if [ -f composer.lock ]; then
+          # Fetch base branch for comparison
+          git fetch origin ${{ github.base_ref }} --depth=1 2>/dev/null || true
+
+          # Check if composer.lock exists in base branch
+          if git show origin/${{ github.base_ref }}:composer.lock > /dev/null 2>&1; then
+            git show origin/${{ github.base_ref }}:composer.lock > /tmp/composer.lock.base
+            .wp-linting-tools/vendor/bin/composer-diff \
+              /tmp/composer.lock.base \
+              composer.lock \
+              --with-links \
+              --format=mdlist || true
+          else
+            echo "No composer.lock in base branch, skipping diff"
+          fi
+        else
+          echo "No composer.lock found, skipping diff"
+        fi
+
+    - name: Cleanup
+      if: always()
+      shell: bash
+      run: |
+        rm -rf .wp-linting-tools
+        rm -f phpcs-report.xml
