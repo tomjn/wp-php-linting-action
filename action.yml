@@ -7,10 +7,6 @@ branding:
   color: 'blue'
 
 inputs:
-  token:
-    description: 'GitHub token with access to checkout this action repo (required if repo is private)'
-    required: false
-    default: ${{ github.token }}
   php-version:
     description: 'PHP version to use'
     required: false
@@ -59,7 +55,6 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: tomjn/wp-php-linting-action
-        token: ${{ inputs.token }}
         path: .wp-linting-tools
         ref: main
 

@@ -47,7 +47,6 @@ jobs:
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `token` | `github.token` | GitHub token (PAT required if action repo is private) |
 | `php-version` | `8.2` | PHP version to use |
 | `run-syntax` | `true` | Run PHP syntax checks |
 | `run-phpcs` | `true` | Run PHPCS with WPCS |
@@ -58,16 +57,6 @@ jobs:
 | `config-file` | `.github/wp-lint.yml` | Path to config file |
 | `extra-phpcs-args` | `''` | Additional PHPCS arguments |
 | `extra-phpstan-args` | `''` | Additional PHPStan arguments |
-
-### Private Action Repository
-
-If this action's repository is private, you must provide a PAT with repo access:
-
-```yaml
-- uses: tomjn/wp-php-linting-action@main
-  with:
-    token: ${{ secrets.LINT_ACTION_PAT }}
-```
 
 ### Configuration File
 

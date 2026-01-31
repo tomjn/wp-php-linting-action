@@ -5,7 +5,9 @@
 ### Self-Checkout Pattern (action.yml)
 The action checks itself out to `.wp-linting-tools/` because **relative paths in composite actions resolve relative to the consumer's repo, not the action's repo**. Do NOT try to use `uses: ./.github/actions/...` patterns.
 
-**Private Repo Support**: If this repo is private, consumers must pass a PAT via the `token` input. The default `github.token` can't access other private repos.
+**Private Repo Limitation**: If this repo is private, the self-checkout will fail with "Repository not found" because the consumer's GITHUB_TOKEN can't access other private repos. Solutions:
+1. Make this repo public, OR
+2. Add a `token` input that accepts a PAT with cross-repo access
 
 ### Composer Plugin (src/class-plugin.php)
 Injects scripts from `extra.shared-scripts` into consuming projects. The plugin subscribes to Composer events and modifies the root package's scripts.
