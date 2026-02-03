@@ -2,7 +2,9 @@ name: PHP Linting
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -31,8 +33,6 @@ jobs:
 
       - name: Install dependencies
         uses: ramsey/composer-install@v3
-        with:
-          custom-cache-suffix: $(date -u "+%Y-%m")
 
       - name: PHP Syntax Check
         run: composer run lint:php
